@@ -4,21 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Salary Tracker</title>
-    
-    <!-- 1. For standard desktop browser tabs -->
-    <link rel="icon" type="image/x-icon" href="Wallet.ico">
 
-    <!-- 2. For Android Home Screen / Web App -->
-    <link rel="icon" type="image/png" sizes="192x192" href="Wallet.PNG">
-    <link rel="icon" type="image/png" sizes="512x512" href="Wallet.PNG">
-
-    <!-- 3. For Apple / iOS Home Screen -->
-    <link rel="apple-touch-icon" href="Wallet.PNG">
-    
-    <!-- Make the web app look native (hides browser UI) -->
+    <!-- For Apple / iOS Home Screen -->
+    <link rel="apple-touch-icon" sizes="180x180" href="logo.png?v=2">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Premium Wallet">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -109,74 +101,37 @@
             transform: scale(0.95);
         }
 
-        .month-dropdown.show {
-            opacity: 1;
-            pointer-events: auto;
-            transform: scale(1);
-        }
+        .month-dropdown.show { opacity: 1; pointer-events: auto; transform: scale(1); }
 
         .dropdown-year-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 18px;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 20px;
-            padding: 0 4px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 18px; font-weight: 700; color: white; margin-bottom: 20px; padding: 0 4px;
         }
 
         .year-nav-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #c084fc;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 18px;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #c084fc; width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 18px;
         }
 
-        .year-nav-btn:hover {
-            background: rgba(147, 51, 234, 0.3);
-            color: white;
-        }
+        .year-nav-btn:hover { background: rgba(147, 51, 234, 0.3); color: white; }
 
-        .dropdown-months-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
+        .dropdown-months-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 
         .month-btn {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            color: #cbd5e1;
-            padding: 12px 0;
-            border-radius: 12px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #cbd5e1; padding: 12px 0; border-radius: 12px; cursor: pointer;
+            text-align: center; font-size: 14px; font-weight: 600; transition: all 0.2s;
         }
 
         .month-btn:hover {
-            background: rgba(147, 51, 234, 0.15);
-            border-color: rgba(147, 51, 234, 0.4);
-            color: white;
-            transform: translateY(-2px);
+            background: rgba(147, 51, 234, 0.15); border-color: rgba(147, 51, 234, 0.4);
+            color: white; transform: translateY(-2px);
         }
 
         .month-btn.active {
-            background: rgba(147, 51, 234, 0.4);
-            border-color: #c084fc;
-            color: white;
-            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+            background: rgba(147, 51, 234, 0.4); border-color: #c084fc;
+            color: white; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
         }
 
         /* Rest of the container & app styles */
@@ -184,11 +139,8 @@
         .top-section { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 20px; margin-bottom: 20px; }
 
         .card {
-            background: rgba(10, 15, 35, 0.82);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(22px);
-            border-radius: 34px;
-            padding: 24px;
+            background: rgba(10, 15, 35, 0.82); border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(22px); border-radius: 34px; padding: 24px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
 
@@ -248,20 +200,53 @@
         .analytics-sub { margin-top: 6px; font-size: 15px; color: #9ca3af; }
 
         /* ============================
+           DASHBOARD MONTH NAVIGATOR
+           ============================ */
+        .dash-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .dash-month-selector {
+            display: flex;
+            align-items: center;
+            background: rgba(10, 15, 35, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(22px);
+            border-radius: 20px;
+            padding: 8px 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .dash-nav-btn {
+            background: transparent;
+            border: none;
+            color: #c084fc;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 10px;
+            transition: 0.2s;
+        }
+        .dash-nav-btn:hover { color: white; transform: scale(1.1); }
+        
+        .dash-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        /* ============================
            FULLSCREEN OVERLAY & MODALS
            ============================ */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(15px);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px);
+            z-index: 2000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: all 0.3s ease;
         }
 
         .modal-overlay.show { opacity: 1; pointer-events: auto; }
@@ -277,9 +262,23 @@
         .cal-nav span { cursor: pointer; transition: color 0.2s; user-select: none; }
         .cal-nav span:hover { color: white; }
 
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 18px; text-align: center; }
+        /* FIXED CALENDAR OVERFLOW */
+        .cal-grid { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            row-gap: 12px;
+            column-gap: 4px;
+            text-align: center; 
+        }
         .cal-day-name { font-size: 12px; font-weight: 600; color: #6b7280; letter-spacing: 0.5px; margin-bottom: 8px; }
-        .cal-date { width: 40px; height: 40px; margin: auto; display: flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 50%; cursor: pointer; transition: 0.2s; color: #f3f4f6; position: relative; }
+        .cal-date { 
+            width: 100%; 
+            max-width: 36px; /* Caps the width so it never overflows */
+            height: 36px; 
+            margin: auto; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 16px; border-radius: 50%; cursor: pointer; transition: 0.2s; color: #f3f4f6; position: relative; 
+        }
         .cal-date:not(:empty):hover { background: rgba(255, 255, 255, 0.1); }
         .cal-highlight-text { color: #c084fc; font-weight: bold;}
         .cal-active { background: rgba(147, 51, 234, 0.2) !important; border: 1px solid rgba(147, 51, 234, 0.4); color: #e9d5ff; }
@@ -305,45 +304,33 @@
 
         @media (max-width: 950px) {
             .top-section { grid-template-columns: 1fr; }
+            .dash-nav-container { flex-direction: column; gap: 15px; align-items: flex-start;}
         }
 
         @media (max-width: 768px) {
-            .container { margin-top: 60px; } /* Space for fixed button */
+            .container { margin-top: 60px; }
             
-            /* Stack Pie Chart & Legend */
-            .pie-card {
-                flex-direction: column-reverse;
-                justify-content: center;
-                padding: 30px 15px;
-                min-height: auto;
-                gap: 30px;
-            }
-            .stats-list {
-                width: 100%;
-                align-items: flex-start;
-                padding-left: 20px;
-            }
-            .chart-wrapper {
-                width: 260px;
-                height: 260px;
-            }
+            .pie-card { flex-direction: column-reverse; justify-content: center; padding: 30px 15px; min-height: auto; gap: 30px; }
+            .stats-list { width: 100%; align-items: flex-start; padding-left: 20px; }
+            .chart-wrapper { width: 260px; height: 260px; }
             
-            /* Scale Down Typography */
             .salary { font-size: 42px; }
             .remaining { font-size: 38px; }
             .chart-center .amount { font-size: 32px; }
             
-            /* Stack Input Fields */
-            .input[style*="width:48%"], .input {
-                width: 100% !important;
-            }
+            .input[style*="width:48%"], .input { width: 100% !important; }
+        }
+        
+        /* Specific fix for calendar on tiny screens */
+        @media (max-width: 400px) {
+            .cal-date { width: 32px; height: 32px; font-size: 14px; }
+            .calendar-modal { padding: 20px 15px; }
         }
     </style>
 </head>
 
 <body>
 
-<!-- FIXED CALENDAR BUTTON -->
 <button class="top-left-calendar-btn" onclick="toggleMonthDropdown(event)" title="Open Year/Month Selector">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -353,40 +340,32 @@
     </svg>
 </button>
 
-<!-- ADVANCED YEAR/MONTH DROPDOWN -->
 <div class="month-dropdown" id="monthDropdown" onclick="event.stopPropagation()">
     <div class="dropdown-year-header">
         <button class="year-nav-btn" onclick="changeDropdownYear(-1)">‹</button>
         <span id="dropdownYearDisplay">2026</span>
         <button class="year-nav-btn" onclick="changeDropdownYear(1)">›</button>
     </div>
-    <div class="dropdown-months-grid" id="dropdownMonthsGrid">
-        <!-- Populated by JS -->
-    </div>
+    <div class="dropdown-months-grid" id="dropdownMonthsGrid"></div>
 </div>
 
-<!-- FULLSCREEN MODAL OVERLAY -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-    <!-- CALENDAR WIDGET -->
     <div class="card calendar-modal" id="calendarModal" onclick="event.stopPropagation()">
         <div class="calendar-header">
             <div class="cal-title" id="calMonthYearTitle">June 2026</div>
             <div class="cal-nav">
-                <span onclick="changeMonth(-1)">‹</span>
-                <span onclick="changeMonth(1)">›</span>
+                <span onclick="changeModalMonth(-1)">‹</span>
+                <span onclick="changeModalMonth(1)">›</span>
             </div>
         </div>
-        <div class="cal-grid" id="calGrid">
-            <!-- Populated by JS -->
-        </div>
+        <div class="cal-grid" id="calGrid"></div>
     </div>
 
-    <!-- DAILY EXPENSE DETAILS CARD -->
     <div class="card details-modal" id="detailsModal" onclick="event.stopPropagation()">
         <div class="details-header">
             <button class="back-btn" onclick="backToCalendar()">‹</button>
             <span id="detailDateTitle">May 15, 2026</span>
-            <div style="width:24px"></div> <!-- Spacer -->
+            <div style="width:24px"></div>
         </div>
         <div style="font-size: 14px; color: #8b93b3;">Total Daily Expenses</div>
         <div class="total-expense-display" id="detailTotalAmt">₹0</div>
@@ -395,6 +374,17 @@
 </div>
 
 <div class="container">
+
+    <!-- NEW DASHBOARD NAVIGATOR -->
+    <div class="dash-nav-container">
+        <h1 style="font-size: 26px; font-weight: 800;">My Finances</h1>
+        <div class="dash-month-selector">
+            <button class="dash-nav-btn" onclick="changeDashMonth(-1)">‹</button>
+            <div class="dash-title" id="dashMonthTitle">May 2026</div>
+            <button class="dash-nav-btn" onclick="changeDashMonth(1)">›</button>
+        </div>
+    </div>
+
     <div class="top-section">
         <div class="card">
             <div class="heading">Premium Salary Wallet</div>
@@ -483,24 +473,74 @@
 </div>
 
 <script>
-    // --- Data Management ---
-    let salary = JSON.parse(localStorage.getItem('salary')) || { amount: 0, date: '' };
-    let emis = JSON.parse(localStorage.getItem('emis')) || [];
-    let monthly = JSON.parse(localStorage.getItem('monthly')) || [];
-    let daily = JSON.parse(localStorage.getItem('daily')) || [];
-
-    function saveAll() {
-        localStorage.setItem('salary', JSON.stringify(salary));
-        localStorage.setItem('emis', JSON.stringify(emis));
-        localStorage.setItem('monthly', JSON.stringify(monthly));
-        localStorage.setItem('daily', JSON.stringify(daily));
+    // --- Advanced Data Management (Month-to-Month) ---
+    
+    // Migration block: converts old format to new format without losing data
+    let appData = JSON.parse(localStorage.getItem('walletAppData'));
+    
+    if (!appData) {
+        appData = {};
+        let oldSalary = JSON.parse(localStorage.getItem('salary'));
+        let oldEmis = JSON.parse(localStorage.getItem('emis'));
+        
+        if (oldSalary || oldEmis) {
+            let initialMonth = new Date().toISOString().slice(0, 7); // Format: YYYY-MM
+            appData[initialMonth] = {
+                salary: oldSalary || { amount: 0, date: '' },
+                emis: oldEmis || [],
+                monthly: JSON.parse(localStorage.getItem('monthly')) || [],
+                daily: JSON.parse(localStorage.getItem('daily')) || []
+            };
+        }
     }
 
+    // Current global state
+    let dashDate = new Date(); 
+    let currentMonthKey = getMonthKey(dashDate);
+
+    function getMonthKey(date) {
+        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+    }
+
+    // Ensure the current month exists. If not, auto-copy recurring expenses from the closest past month!
+    function initializeMonth(key) {
+        if (!appData[key]) {
+            let pastKeys = Object.keys(appData).filter(k => k < key).sort();
+            if (pastKeys.length > 0) {
+                // Clone from the most recent month
+                let lastData = appData[pastKeys[pastKeys.length - 1]];
+                appData[key] = {
+                    salary: { amount: 0, date: '' }, // Salary resets
+                    // Copy EMIs and Monthly, but mark them as Unpaid (paid: false)
+                    emis: lastData.emis.map(e => ({...e, paid: false, date: ''})),
+                    monthly: lastData.monthly.map(m => ({...m, paid: false})),
+                    daily: [] // Daily expenses start fresh
+                };
+            } else {
+                // Complete fresh start
+                appData[key] = { salary: { amount: 0, date: '' }, emis: [], monthly: [], daily: [] };
+            }
+            saveAll();
+        }
+    }
+
+    // Initialize today on load
+    initializeMonth(currentMonthKey);
+
+    function getActiveData() {
+        return appData[currentMonthKey];
+    }
+
+    function saveAll() {
+        localStorage.setItem('walletAppData', JSON.stringify(appData));
+    }
+
+    // --- Add/Delete/Toggle Functions (Now scoped to active month) ---
     function saveSalary() {
         const val = document.getElementById('salaryInput').value;
         if(!val) return;
-        salary.amount = Number(val);
-        salary.date = document.getElementById('salaryDate').value;
+        getActiveData().salary.amount = Number(val);
+        getActiveData().salary.date = document.getElementById('salaryDate').value;
         saveAll(); updateUI();
         document.getElementById('salaryInput').value = '';
     }
@@ -509,7 +549,7 @@
         const name = document.getElementById('emiName').value;
         const amt = document.getElementById('emiAmount').value;
         if(!name || !amt) return;
-        emis.push({ name, amount: Number(amt), date: document.getElementById('emiDate').value, paid: false });
+        getActiveData().emis.push({ name, amount: Number(amt), date: document.getElementById('emiDate').value, paid: false });
         saveAll(); updateUI();
         document.getElementById('emiName').value = ''; document.getElementById('emiAmount').value = '';
     }
@@ -518,7 +558,7 @@
         const name = document.getElementById('monthlyName').value;
         const amt = document.getElementById('monthlyAmount').value;
         if(!name || !amt) return;
-        monthly.push({ name, amount: Number(amt), paid: false });
+        getActiveData().monthly.push({ name, amount: Number(amt), paid: false });
         saveAll(); updateUI();
         document.getElementById('monthlyName').value = ''; document.getElementById('monthlyAmount').value = '';
     }
@@ -527,30 +567,49 @@
         const name = document.getElementById('dailyName').value;
         const amt = document.getElementById('dailyAmount').value;
         if(!name || !amt) return;
-        daily.push({ name, amount: Number(amt), date: document.getElementById('dailyDate').value, paid: false });
+        getActiveData().daily.push({ name, amount: Number(amt), date: document.getElementById('dailyDate').value, paid: false });
         saveAll(); updateUI();
         document.getElementById('dailyName').value = ''; document.getElementById('dailyAmount').value = '';
     }
 
     function togglePaid(type, index) {
-        if (type === 'emi') emis[index].paid = !emis[index].paid;
-        if (type === 'monthly') monthly[index].paid = !monthly[index].paid;
-        if (type === 'daily') daily[index].paid = !daily[index].paid;
+        if (type === 'emi') getActiveData().emis[index].paid = !getActiveData().emis[index].paid;
+        if (type === 'monthly') getActiveData().monthly[index].paid = !getActiveData().monthly[index].paid;
+        if (type === 'daily') getActiveData().daily[index].paid = !getActiveData().daily[index].paid;
         saveAll(); updateUI();
     }
 
     function deleteItem(type, index) {
-        if (type === 'emi') emis.splice(index, 1);
-        if (type === 'monthly') monthly.splice(index, 1);
-        if (type === 'daily') daily.splice(index, 1);
+        if (type === 'emi') getActiveData().emis.splice(index, 1);
+        if (type === 'monthly') getActiveData().monthly.splice(index, 1);
+        if (type === 'daily') getActiveData().daily.splice(index, 1);
         saveAll(); updateUI();
     }
 
-    function renderList(data, type, containerId) {
+    // --- Dashboard Navigation ---
+    function changeDashMonth(offset) {
+        dashDate.setMonth(dashDate.getMonth() + offset);
+        currentMonthKey = getMonthKey(dashDate);
+        initializeMonth(currentMonthKey); // Auto-fills if it's a brand new month
+        
+        const titleStr = dashDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+        document.getElementById('dashMonthTitle').innerText = titleStr;
+        
+        updateUI();
+    }
+
+    // --- UI Updating & Charts ---
+    function calculatePaid() {
+        const data = getActiveData();
+        const sum = (arr) => arr.filter(i => i.paid).reduce((a, b) => a + b.amount, 0);
+        return sum(data.emis) + sum(data.monthly) + sum(data.daily);
+    }
+
+    function renderList(dataArr, type, containerId) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
-        data.slice().reverse().forEach((item, revIdx) => {
-            const index = data.length - 1 - revIdx;
+        dataArr.slice().reverse().forEach((item, revIdx) => {
+            const index = dataArr.length - 1 - revIdx;
             container.innerHTML += `
                 <div class="item">
                     <div class="item-top">
@@ -572,14 +631,91 @@
         });
     }
 
-    function calculatePaid() {
-        const sum = (arr) => arr.filter(i => i.paid).reduce((a, b) => a + b.amount, 0);
-        return sum(emis) + sum(monthly) + sum(daily);
+    function updateUI() {
+        const data = getActiveData();
+        const paid = calculatePaid();
+        const balance = data.salary.amount - paid;
+        const perc = data.salary.amount > 0 ? ((balance / data.salary.amount) * 100).toFixed(1) : 0;
+
+        document.getElementById('salaryDisplay').innerText = '₹' + data.salary.amount.toLocaleString();
+        document.getElementById('balance').innerText = '₹' + balance.toLocaleString();
+        document.getElementById('percentRemaining').innerText = `↑ ${perc}% left`;
+        document.getElementById('salaryDateText').innerText = data.salary.date || '--';
+        document.getElementById('totalPaid').innerText = '₹' + paid.toLocaleString();
+
+        // Update Title on load
+        document.getElementById('dashMonthTitle').innerText = dashDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+        renderList(data.emis, 'emi', 'emiList');
+        renderList(data.monthly, 'monthly', 'monthlyList');
+        renderList(data.daily, 'daily', 'dailyList');
+
+        renderPieChart();
+        renderLineChart();
+        updateInsights();
     }
 
-    // --- Advanced Calendar & Modal Logic ---
-    let currentCalDate = new Date(); // Currently viewed month in the main calendar
-    let dropdownYear = currentCalDate.getFullYear(); // Year currently displayed in the dropdown picker
+    let pieChart, lineChart;
+
+    function renderPieChart() {
+        const data = getActiveData();
+        const getSum = (arr) => arr.filter(i => i.paid).reduce((a, b) => a + b.amount, 0);
+        const e = getSum(data.emis), m = getSum(data.monthly), d = getSum(data.daily);
+        const bal = Math.max(0, data.salary.amount - (e + m + d));
+
+        document.getElementById('chartAmount').innerText = '₹' + data.salary.amount.toLocaleString();
+        const ctx = document.getElementById('pieChart');
+        if (pieChart) pieChart.destroy();
+        pieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: { datasets: [{ data: [e, m, d, bal], backgroundColor: ['#a855f7', '#3b82f6', '#f59e0b', '#22c55e'], borderWidth: 0, borderRadius: 8 }] },
+            options: { responsive: true, cutout: '76%', plugins: { legend: { display: false } } }
+        });
+    }
+
+    function renderLineChart() {
+        const data = getActiveData();
+        const grouped = {};
+        data.daily.filter(i => i.paid).forEach(i => { grouped[i.date] = (grouped[i.date] || 0) + i.amount; });
+        const labels = Object.keys(grouped).sort();
+        const values = labels.map(l => grouped[l]);
+
+        const ctx = document.getElementById('lineChart');
+        if (lineChart) lineChart.destroy();
+        lineChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels, datasets: [{ data: values, fill: true, tension: 0.4, borderColor: '#c026d3', backgroundColor: 'rgba(192,38,211,0.2)' }] },
+            options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+        });
+    }
+
+    function updateInsights() {
+        const data = getActiveData();
+        const paidDaily = data.daily.filter(i => i.paid);
+        if (paidDaily.length === 0) {
+            document.getElementById('highestDay').innerText = '--';
+            document.getElementById('highestAmount').innerText = '₹0';
+            document.getElementById('averageSpend').innerText = '₹0';
+            return;
+        }
+        
+        const grouped = {};
+        paidDaily.forEach(i => grouped[i.date] = (grouped[i.date] || 0) + i.amount);
+        
+        let highDay = '', highAmt = 0;
+        for (let day in grouped) { if (grouped[day] > highAmt) { highAmt = grouped[day]; highDay = day; } }
+
+        const total = Object.values(grouped).reduce((a, b) => a + b, 0);
+        const avg = Math.round(total / Object.keys(grouped).length);
+
+        document.getElementById('highestDay').innerText = highDay;
+        document.getElementById('highestAmount').innerText = '₹' + highAmt.toLocaleString();
+        document.getElementById('averageSpend').innerText = '₹' + avg.toLocaleString();
+    }
+
+    // --- Modal Calendar Logic ---
+    let modalCalDate = new Date(); 
+    let dropdownYear = modalCalDate.getFullYear();
 
     function toggleMonthDropdown(e) {
         e.stopPropagation();
@@ -587,7 +723,7 @@
         if (dropdown.classList.contains('show')) {
             dropdown.classList.remove('show');
         } else {
-            dropdownYear = currentCalDate.getFullYear(); // Sync dropdown to current calendar state
+            dropdownYear = modalCalDate.getFullYear(); 
             renderDropdown();
             dropdown.classList.add('show');
         }
@@ -599,7 +735,7 @@
 
     function changeDropdownYear(offset) {
         let newYear = dropdownYear + offset;
-        if (newYear < 1900 || newYear > 2099) return; // Prevent going out of realistic bounds
+        if (newYear < 1900 || newYear > 2099) return;
         dropdownYear = newYear;
         renderDropdown();
     }
@@ -607,12 +743,9 @@
     function renderDropdown() {
         document.getElementById('dropdownYearDisplay').innerText = dropdownYear;
         const grid = document.getElementById('dropdownMonthsGrid');
-        
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        
         grid.innerHTML = monthNames.map((month, index) => {
-            // Highlight the currently active calendar month in the dropdown
-            let isActive = (dropdownYear === currentCalDate.getFullYear() && index === currentCalDate.getMonth());
+            let isActive = (dropdownYear === modalCalDate.getFullYear() && index === modalCalDate.getMonth());
             return `<div class="month-btn ${isActive ? 'active' : ''}" onclick="selectMonthFromDropdown(${index})">${month}</div>`;
         }).join('');
     }
@@ -623,13 +756,11 @@
     }
 
     function openCalendarOverlay(year, month) {
-        currentCalDate = new Date(year, month, 1);
-        
+        modalCalDate = new Date(year, month, 1);
         document.getElementById('modalOverlay').classList.add('show');
         document.getElementById('calendarModal').classList.add('show');
         document.getElementById('detailsModal').classList.remove('show');
-        
-        renderDynamicCalendar();
+        renderModalCalendar();
     }
 
     function closeModal(e) {
@@ -638,40 +769,34 @@
         }
     }
 
-    function changeMonth(offset) {
-        currentCalDate.setMonth(currentCalDate.getMonth() + offset);
-        renderDynamicCalendar();
+    function changeModalMonth(offset) {
+        modalCalDate.setMonth(modalCalDate.getMonth() + offset);
+        renderModalCalendar();
     }
 
-    function renderDynamicCalendar() {
-        const year = currentCalDate.getFullYear();
-        const month = currentCalDate.getMonth();
+    function renderModalCalendar() {
+        const year = modalCalDate.getFullYear();
+        const month = modalCalDate.getMonth();
         const today = new Date();
         
-        // Update Title
-        const titleStr = currentCalDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-        document.getElementById('calMonthYearTitle').innerHTML = `${titleStr} <span>›</span>`;
+        document.getElementById('calMonthYearTitle').innerHTML = `${modalCalDate.toLocaleString('default', { month: 'long', year: 'numeric' })} <span>›</span>`;
 
-        // Calculate days
         const firstDayIndex = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        
         const grid = document.getElementById('calGrid');
         
-        // Headers
-        const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-        let html = days.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+        let html = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(d => `<div class="cal-day-name">${d}</div>`).join('');
         
-        // Empty slots
-        for(let i = 0; i < firstDayIndex; i++) {
-            html += `<div class="cal-date"></div>`;
-        }
+        for(let i = 0; i < firstDayIndex; i++) html += `<div class="cal-date"></div>`;
         
-        // Days
+        // Grab expenses for THIS modal month
+        let key = year + '-' + String(month + 1).padStart(2, '0');
+        let monthDailyExpenses = appData[key] ? appData[key].daily : [];
+
         for(let day = 1; day <= daysInMonth; day++) {
             let isToday = (day === today.getDate() && month === today.getMonth() && year === today.getFullYear());
             let dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            let hasExpenses = daily.some(item => item.date === dateStr);
+            let hasExpenses = monthDailyExpenses.some(item => item.date === dateStr);
 
             let classes = "cal-date";
             if (isToday) classes += " cal-highlight-text";
@@ -679,7 +804,6 @@
             
             html += `<div class="${classes}" onclick="showDateDetails(${year}, ${month}, ${day})">${day}</div>`;
         }
-        
         grid.innerHTML = html;
     }
 
@@ -687,7 +811,10 @@
         const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const displayDate = new Date(year, month, day).toLocaleString('default', { month: 'long', day:'numeric', year: 'numeric' });
         
-        const dayExpenses = daily.filter(item => item.date === dateStr);
+        let key = year + '-' + String(month + 1).padStart(2, '0');
+        let monthDailyExpenses = appData[key] ? appData[key].daily : [];
+
+        const dayExpenses = monthDailyExpenses.filter(item => item.date === dateStr);
         const total = dayExpenses.reduce((sum, item) => sum + item.amount, 0);
 
         document.getElementById('detailDateTitle').innerText = displayDate;
@@ -714,76 +841,7 @@
         document.getElementById('calendarModal').classList.add('show');
     }
 
-    // --- UI Updating & Charts ---
-    function updateUI() {
-        const paid = calculatePaid();
-        const balance = salary.amount - paid;
-        const perc = salary.amount > 0 ? ((balance / salary.amount) * 100).toFixed(1) : 0;
-
-        document.getElementById('salaryDisplay').innerText = '₹' + salary.amount.toLocaleString();
-        document.getElementById('balance').innerText = '₹' + balance.toLocaleString();
-        document.getElementById('percentRemaining').innerText = `↑ ${perc}% left`;
-        document.getElementById('salaryDateText').innerText = salary.date || '--';
-        document.getElementById('totalPaid').innerText = '₹' + paid.toLocaleString();
-
-        renderList(emis, 'emi', 'emiList');
-        renderList(monthly, 'monthly', 'monthlyList');
-        renderList(daily, 'daily', 'dailyList');
-
-        renderPieChart();
-        renderLineChart();
-        updateInsights();
-    }
-
-    let pieChart, lineChart;
-
-    function renderPieChart() {
-        const getSum = (arr) => arr.filter(i => i.paid).reduce((a, b) => a + b.amount, 0);
-        const e = getSum(emis), m = getSum(monthly), d = getSum(daily);
-        const bal = Math.max(0, salary.amount - (e + m + d));
-
-        document.getElementById('chartAmount').innerText = '₹' + salary.amount.toLocaleString();
-        const ctx = document.getElementById('pieChart');
-        if (pieChart) pieChart.destroy();
-        pieChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: { datasets: [{ data: [e, m, d, bal], backgroundColor: ['#a855f7', '#3b82f6', '#f59e0b', '#22c55e'], borderWidth: 0, borderRadius: 8 }] },
-            options: { responsive: true, cutout: '76%', plugins: { legend: { display: false } } }
-        });
-    }
-
-    function renderLineChart() {
-        const grouped = {};
-        daily.filter(i => i.paid).forEach(i => { grouped[i.date] = (grouped[i.date] || 0) + i.amount; });
-        const labels = Object.keys(grouped).sort();
-        const values = labels.map(l => grouped[l]);
-
-        const ctx = document.getElementById('lineChart');
-        if (lineChart) lineChart.destroy();
-        lineChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels, datasets: [{ data: values, fill: true, tension: 0.4, borderColor: '#c026d3', backgroundColor: 'rgba(192,38,211,0.2)' }] },
-            options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
-        });
-    }
-
-    function updateInsights() {
-        const paidDaily = daily.filter(i => i.paid);
-        if (paidDaily.length === 0) return;
-        const grouped = {};
-        paidDaily.forEach(i => grouped[i.date] = (grouped[i.date] || 0) + i.amount);
-        
-        let highDay = '', highAmt = 0;
-        for (let day in grouped) { if (grouped[day] > highAmt) { highAmt = grouped[day]; highDay = day; } }
-
-        const total = Object.values(grouped).reduce((a, b) => a + b, 0);
-        const avg = Math.round(total / Object.keys(grouped).length);
-
-        document.getElementById('highestDay').innerText = highDay;
-        document.getElementById('highestAmount').innerText = '₹' + highAmt.toLocaleString();
-        document.getElementById('averageSpend').innerText = '₹' + avg.toLocaleString();
-    }
-
+    // Initial Render
     updateUI();
 </script>
 
