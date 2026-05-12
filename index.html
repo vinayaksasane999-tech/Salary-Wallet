@@ -433,7 +433,12 @@
                 <div>
                     <div class="salary" id="salaryDisplay">₹0</div>
                     <div class="received">Salary received on <span class="blue" id="salaryDateText">--</span></div>
-                    <div class="received" id="carryForwardDisplay" style="color: #4ade80; display: none; font-weight: bold; margin-top: 4px;">+ ₹0 carried forward</div>
+                    
+                    <div class="received" id="carryForwardDisplay" style="color: #4ade80; display: none; font-weight: bold; margin-top: 4px; align-items: center; gap: 10px;">
+                        <span id="carryForwardText">+ ₹0 carried forward</span>
+                        <button onclick="undoCarryForward()" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s;">Undo</button>
+                    </div>
+
                 </div>
             </div>
             
@@ -560,7 +565,7 @@
                 let lastData = appData[pastKeys[pastKeys.length - 1]];
                 appData[key] = {
                     salary: { amount: 0, date: '' },
-                    carriedForward: 0, // Defaults to 0 for new months until manually triggered
+                    carriedForward: 0, 
                     emis: lastData.emis.map(e => ({...e, paid: false, date: ''})),
                     monthly: lastData.monthly.map(m => ({...m, paid: false})),
                     daily: []
@@ -586,7 +591,7 @@
         document.getElementById('salaryInput').value = '';
     }
 
-    // --- NEW MANUAL CARRY FORWARD LOGIC ---
+    // --- MANUAL CARRY FORWARD LOGIC ---
     function carryForward() {
         const pastKeys = Object.keys(appData).filter(k => k < currentMonthKey).sort();
         if (pastKeys.length === 0) return;
@@ -602,6 +607,13 @@
             saveAll();
             updateUI();
         }
+    }
+
+    // --- UNDO CARRY FORWARD LOGIC ---
+    function undoCarryForward() {
+        getActiveData().carriedForward = 0;
+        saveAll();
+        updateUI();
     }
 
     function addEMI() {
@@ -718,8 +730,8 @@
 
         if (carried > 0) {
             cfBtn.style.display = 'none';
-            cfDisplay.style.display = 'block';
-            cfDisplay.innerText = '+ ₹' + carried.toLocaleString() + ' carried forward';
+            cfDisplay.style.display = 'flex';
+            document.getElementById('carryForwardText').innerText = '+ ₹' + carried.toLocaleString() + ' carried forward';
         } else if (lastMonthBalance > 0) {
             cfBtn.style.display = 'block';
             cfDisplay.style.display = 'none';
