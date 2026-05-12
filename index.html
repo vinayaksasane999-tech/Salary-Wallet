@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="Premium Wallet">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         * {
@@ -248,6 +249,9 @@
             transition: transform 0.4s cubic-bezier(0.25, 1.3, 0.3, 1), 
                         width 0.25s cubic-bezier(0.2, 0, 0.2, 1); 
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 3px 10px rgba(0, 0, 0, 0.08);
+            will-change: transform, width; 
+            transform: translate3d(0, 0, 0); 
+            backface-visibility: hidden;
         }
 
         input:checked + .slider { background-color: #32d74b; }
@@ -271,7 +275,7 @@
         /* ============================
            DASHBOARD MONTH NAVIGATOR
            ============================ */
-        .dash-nav-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .dash-nav-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
         .dash-month-selector {
             display: flex; align-items: center; background: rgba(10, 15, 35, 0.82);
             border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(22px);
@@ -280,6 +284,8 @@
         .dash-nav-btn { background: transparent; border: none; color: #c084fc; font-size: 20px; cursor: pointer; padding: 0 10px; transition: 0.2s; }
         .dash-nav-btn:hover { color: white; transform: scale(1.1); }
         .dash-title { font-size: 18px; font-weight: bold; color: white; min-width: 140px; text-align: center; }
+        
+        .header-actions { display: flex; align-items: center; gap: 15px; }
 
         /* ============================
            FULLSCREEN OVERLAY & MODALS
@@ -335,7 +341,8 @@
 
         @media (max-width: 950px) {
             .top-section { grid-template-columns: 1fr; }
-            .dash-nav-container { flex-direction: column; gap: 15px; align-items: flex-start;}
+            .dash-nav-container { flex-direction: column; align-items: flex-start;}
+            .header-actions { width: 100%; justify-content: space-between; }
         }
 
         @media (max-width: 768px) {
@@ -348,10 +355,7 @@
             .chart-center .amount { font-size: 32px; }
             
             /* FORCE INPUTS TO STACK ON MOBILE */
-            .input-group {
-                flex-direction: column;
-                gap: 0; 
-            }
+            .input-group { flex-direction: column; gap: 0; }
             .input { width: 100% !important; }
             .button { width: 100% !important; display: block; }
         }
@@ -411,10 +415,13 @@
 
     <div class="dash-nav-container">
         <h1 style="font-size: 26px; font-weight: 800;">My Finances</h1>
-        <div class="dash-month-selector">
-            <button class="dash-nav-btn" onclick="changeDashMonth(-1)">‹</button>
-            <div class="dash-title" id="dashMonthTitle">May 2026</div>
-            <button class="dash-nav-btn" onclick="changeDashMonth(1)">›</button>
+        <div class="header-actions">
+            <button class="button" style="margin-bottom: 0; padding: 10px 18px;" onclick="downloadCustomPDF()">Download PDF</button>
+            <div class="dash-month-selector">
+                <button class="dash-nav-btn" onclick="changeDashMonth(-1)">‹</button>
+                <div class="dash-title" id="dashMonthTitle">May 2026</div>
+                <button class="dash-nav-btn" onclick="changeDashMonth(1)">›</button>
+            </div>
         </div>
     </div>
 
@@ -852,6 +859,112 @@
     function backToCalendar() {
         document.getElementById('detailsModal').classList.remove('show');
         document.getElementById('calendarModal').classList.add('show');
+    }
+
+    // --- PDF GENERATION ENGINE ---
+    function downloadCustomPDF() {
+        const data = getActiveData();
+        const monthTitle = document.getElementById('dashMonthTitle').innerText;
+        
+        // Only grab items that have been marked as 'Paid'
+        const paidDaily = data.daily.filter(i => i.paid);
+        const paidMonthly = data.monthly.filter(i => i.paid);
+        const paidEMI = data.emis.filter(i => i.paid);
+        
+        const sum = (arr) => arr.reduce((a, b) => a + b.amount, 0);
+        const dSum = sum(paidDaily);
+        const mSum = sum(paidMonthly);
+        const eSum = sum(paidEMI);
+        
+        const totalPaid = dSum + mSum + eSum;
+        const balance = Math.max(0, data.salary.amount - totalPaid);
+        
+        // Grab the live pie chart as an image base64 string
+        const chartCanvas = document.getElementById('pieChart');
+        const chartBase64 = chartCanvas.toDataURL('image/png', 1.0);
+
+        // Create an invisible container formatted exactly like the PDF layout
+        const printDiv = document.createElement('div');
+        printDiv.style.width = '800px'; 
+        printDiv.style.padding = '40px';
+        printDiv.style.background = '#060816';
+        printDiv.style.color = '#ffffff';
+        printDiv.style.fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+        
+        let html = `
+            <div style="border-bottom: 2px solid rgba(147, 51, 234, 0.5); padding-bottom: 20px; margin-bottom: 30px;">
+                <h1 style="font-size: 34px; font-weight: 800; color: #c084fc; margin: 0; letter-spacing: -1px;">PREMIUM WALLET</h1>
+                <p style="font-size: 16px; color: #8b93b3; margin-top: 5px;">Monthly Financial Statement • ${monthTitle}</p>
+            </div>
+            
+            <div style="display: flex; gap: 30px; margin-bottom: 40px;">
+                <div style="flex: 1;">
+                    <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <div style="font-size: 13px; color: #8b93b3; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Remaining Balance</div>
+                        <div style="color: #4ade80; font-size: 38px; font-weight: bold; margin-top: 8px;">₹${balance.toLocaleString()}</div>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <div style="font-size: 13px; color: #8b93b3; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Total Salary Received</div>
+                        <div style="color: #c084fc; font-size: 28px; font-weight: bold; margin-top: 8px;">₹${data.salary.amount.toLocaleString()}</div>
+                    </div>
+                    
+                    <div style="margin-top: 25px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="font-size: 14px; color: #cbd5e1; display: flex; align-items: center;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#a855f7; margin-right:12px;"></span> EMIs (₹${eSum.toLocaleString()})</div>
+                        <div style="font-size: 14px; color: #cbd5e1; display: flex; align-items: center;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#3b82f6; margin-right:12px;"></span> Monthly Expenses (₹${mSum.toLocaleString()})</div>
+                        <div style="font-size: 14px; color: #cbd5e1; display: flex; align-items: center;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#f59e0b; margin-right:12px;"></span> Daily Expenses (₹${dSum.toLocaleString()})</div>
+                    </div>
+                </div>
+                
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative;">
+                    <img src="${chartBase64}" style="width: 100%; max-width: 320px;">
+                    <div style="position: absolute; text-align: center; pointer-events: none;">
+                        <div style="font-size: 14px; color: #94a3b8; margin-bottom: 4px;">Total Salary</div>
+                        <div style="font-size: 28px; font-weight: 800; color: white;">₹${data.salary.amount.toLocaleString()}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 style="color: #cbd5e1; margin-top: 20px; font-size: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 15px;">Cleared Transactions</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <th style="text-align: left; padding: 14px 8px; border-bottom: 2px solid rgba(147, 51, 234, 0.5); color: #c084fc; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Category</th>
+                    <th style="text-align: left; padding: 14px 8px; border-bottom: 2px solid rgba(147, 51, 234, 0.5); color: #c084fc; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Description</th>
+                    <th style="text-align: right; padding: 14px 8px; border-bottom: 2px solid rgba(147, 51, 234, 0.5); color: #c084fc; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Amount</th>
+                </tr>`;
+                
+        // Helper function to generate rows
+        const buildRow = (cat, name, amt) => `
+            <tr>
+                <td style="padding: 16px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 15px;">
+                    <span style="background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; font-size: 12px;">${cat}</span>
+                </td>
+                <td style="padding: 16px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 15px;">${name}</td>
+                <td style="padding: 16px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 16px; text-align: right; font-weight: bold;">₹${amt.toLocaleString()}</td>
+            </tr>`;
+
+        // Only add items that are checked as Paid
+        paidEMI.forEach(item => html += buildRow('EMI', item.name, item.amount));
+        paidMonthly.forEach(item => html += buildRow('Monthly', item.name, item.amount));
+        paidDaily.forEach(item => html += buildRow('Daily', item.name, item.amount));
+
+        if (totalPaid === 0) {
+            html += `<tr><td colspan="3" style="padding: 20px; text-align: center; color: #8b93b3; font-style: italic;">No cleared transactions for this month yet.</td></tr>`;
+        }
+
+        html += `</table>`;
+        printDiv.innerHTML = html;
+
+        // PDF Export Options
+        const opt = {
+            margin:       [0.4, 0], // Top/Bottom margin, Left/Right margin
+            filename:     `Premium_Wallet_${monthTitle.replace(' ', '_')}.pdf`,
+            image:        { type: 'jpeg', quality: 1 },
+            html2canvas:  { scale: 2, backgroundColor: '#060816', useCORS: true },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Generate and trigger download
+        html2pdf().set(opt).from(printDiv).save();
     }
 
     updateUI();
