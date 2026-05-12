@@ -210,6 +210,7 @@
         }
         .button:hover { transform: translateY(-2px); }
         .full-width-btn { width: 100%; }
+        .green-btn { background: linear-gradient(135deg, #10b981, #059669); }
 
         .item { margin-top: 16px; padding: 18px; border-radius: 24px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.04); }
         .item-top { display: flex; justify-content: space-between; align-items: center; }
@@ -427,13 +428,17 @@
 
     <div class="top-section">
         <div class="card">
-            <div class="heading">Premium Salary Wallet</div>
+            <div class="heading">Total Available Funds</div>
             <div class="flex">
                 <div>
                     <div class="salary" id="salaryDisplay">₹0</div>
-                    <div class="received">Received on <span class="blue" id="salaryDateText">--</span></div>
+                    <div class="received">Salary received on <span class="blue" id="salaryDateText">--</span></div>
+                    <div class="received" id="carryForwardDisplay" style="color: #4ade80; display: none; font-weight: bold; margin-top: 4px;">+ ₹0 carried forward</div>
                 </div>
             </div>
+            
+            <button class="button full-width-btn green-btn" id="carryForwardBtn" onclick="carryForward()" style="display: none; margin-top: 15px;">Carry Forward Balance</button>
+            
             <div class="remaining-card">
                 <div class="heading">Remaining Balance</div>
                 <div class="remaining green" id="balance">₹0</div>
@@ -457,7 +462,7 @@
             <div class="chart-wrapper">
                 <canvas id="pieChart"></canvas>
                 <div class="chart-center">
-                    <div class="total">Total Salary</div>
+                    <div class="total">Total Funds</div>
                     <div class="amount" id="chartAmount">₹0</div>
                 </div>
             </div>
@@ -533,6 +538,7 @@
             let initialMonth = new Date().toISOString().slice(0, 7);
             appData[initialMonth] = {
                 salary: oldSalary || { amount: 0, date: '' },
+                carriedForward: 0,
                 emis: oldEmis || [],
                 monthly: JSON.parse(localStorage.getItem('monthly')) || [],
                 daily: JSON.parse(localStorage.getItem('daily')) || []
@@ -554,12 +560,13 @@
                 let lastData = appData[pastKeys[pastKeys.length - 1]];
                 appData[key] = {
                     salary: { amount: 0, date: '' },
+                    carriedForward: 0, // Defaults to 0 for new months until manually triggered
                     emis: lastData.emis.map(e => ({...e, paid: false, date: ''})),
                     monthly: lastData.monthly.map(m => ({...m, paid: false})),
                     daily: []
                 };
             } else {
-                appData[key] = { salary: { amount: 0, date: '' }, emis: [], monthly: [], daily: [] };
+                appData[key] = { salary: { amount: 0, date: '' }, carriedForward: 0, emis: [], monthly: [], daily: [] };
             }
             saveAll();
         }
@@ -577,6 +584,24 @@
         getActiveData().salary.date = document.getElementById('salaryDate').value;
         saveAll(); updateUI();
         document.getElementById('salaryInput').value = '';
+    }
+
+    // --- NEW MANUAL CARRY FORWARD LOGIC ---
+    function carryForward() {
+        const pastKeys = Object.keys(appData).filter(k => k < currentMonthKey).sort();
+        if (pastKeys.length === 0) return;
+        
+        const lastData = appData[pastKeys[pastKeys.length - 1]];
+        const sum = (arr) => arr.filter(i => i.paid).reduce((a, b) => a + b.amount, 0);
+        const lastPaid = sum(lastData.emis) + sum(lastData.monthly) + sum(lastData.daily);
+        const lastIncome = (lastData.salary ? lastData.salary.amount : 0) + (lastData.carriedForward || 0);
+        const lastMonthBalance = Math.max(0, lastIncome - lastPaid);
+
+        if (lastMonthBalance > 0) {
+            getActiveData().carriedForward = lastMonthBalance;
+            saveAll();
+            updateUI();
+        }
     }
 
     function addEMI() {
@@ -663,15 +688,46 @@
     function updateUI() {
         const data = getActiveData();
         const paid = calculatePaid();
-        const balance = data.salary.amount - paid;
-        const perc = data.salary.amount > 0 ? ((balance / data.salary.amount) * 100).toFixed(1) : 0;
+        
+        // Calculate Total Income (Salary + Carry Forward)
+        const carried = data.carriedForward || 0;
+        const totalIncome = data.salary.amount + carried;
+        const balance = totalIncome - paid;
+        const perc = totalIncome > 0 ? ((balance / totalIncome) * 100).toFixed(1) : 0;
 
-        document.getElementById('salaryDisplay').innerText = '₹' + data.salary.amount.toLocaleString();
+        document.getElementById('salaryDisplay').innerText = '₹' + totalIncome.toLocaleString();
         document.getElementById('balance').innerText = '₹' + balance.toLocaleString();
         document.getElementById('percentRemaining').innerText = `↑ ${perc}% left`;
         document.getElementById('salaryDateText').innerText = data.salary.date || '--';
         document.getElementById('totalPaid').innerText = '₹' + paid.toLocaleString();
         document.getElementById('dashMonthTitle').innerText = dashDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+        // --- CARRY FORWARD UI LOGIC ---
+        const pastKeys = Object.keys(appData).filter(k => k < currentMonthKey).sort();
+        let lastMonthBalance = 0;
+        if (pastKeys.length > 0) {
+            const lastData = appData[pastKeys[pastKeys.length - 1]];
+            const lastSum = (arr) => arr.filter(i => i.paid).reduce((a, b) => a + b.amount, 0);
+            const lastPaid = lastSum(lastData.emis) + lastSum(lastData.monthly) + lastSum(lastData.daily);
+            const lastIncome = (lastData.salary ? lastData.salary.amount : 0) + (lastData.carriedForward || 0);
+            lastMonthBalance = Math.max(0, lastIncome - lastPaid);
+        }
+
+        const cfBtn = document.getElementById('carryForwardBtn');
+        const cfDisplay = document.getElementById('carryForwardDisplay');
+
+        if (carried > 0) {
+            cfBtn.style.display = 'none';
+            cfDisplay.style.display = 'block';
+            cfDisplay.innerText = '+ ₹' + carried.toLocaleString() + ' carried forward';
+        } else if (lastMonthBalance > 0) {
+            cfBtn.style.display = 'block';
+            cfDisplay.style.display = 'none';
+            cfBtn.innerText = 'Carry Forward ₹' + lastMonthBalance.toLocaleString();
+        } else {
+            cfBtn.style.display = 'none';
+            cfDisplay.style.display = 'none';
+        }
 
         renderList(data.emis, 'emi', 'emiList');
         renderList(data.monthly, 'monthly', 'monthlyList');
@@ -686,11 +742,14 @@
 
     function renderPieChart() {
         const data = getActiveData();
+        const carried = data.carriedForward || 0;
+        const totalIncome = data.salary.amount + carried;
+
         const getSum = (arr) => arr.filter(i => i.paid).reduce((a, b) => a + b.amount, 0);
         const e = getSum(data.emis), m = getSum(data.monthly), d = getSum(data.daily);
-        const bal = Math.max(0, data.salary.amount - (e + m + d));
+        const bal = Math.max(0, totalIncome - (e + m + d));
 
-        document.getElementById('chartAmount').innerText = '₹' + data.salary.amount.toLocaleString();
+        document.getElementById('chartAmount').innerText = '₹' + totalIncome.toLocaleString();
         const ctx = document.getElementById('pieChart');
         if (pieChart) pieChart.destroy();
         pieChart = new Chart(ctx, {
@@ -877,7 +936,9 @@
         const eSum = sum(paidEMI);
         
         const totalPaid = dSum + mSum + eSum;
-        const balance = Math.max(0, data.salary.amount - totalPaid);
+        const carried = data.carriedForward || 0;
+        const totalIncome = data.salary.amount + carried;
+        const balance = Math.max(0, totalIncome - totalPaid);
         
         // Grab the live pie chart as an image base64 string
         const chartCanvas = document.getElementById('pieChart');
@@ -904,8 +965,9 @@
                         <div style="color: #4ade80; font-size: 38px; font-weight: bold; margin-top: 8px;">₹${balance.toLocaleString()}</div>
                     </div>
                     <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                        <div style="font-size: 13px; color: #8b93b3; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Total Salary Received</div>
-                        <div style="color: #c084fc; font-size: 28px; font-weight: bold; margin-top: 8px;">₹${data.salary.amount.toLocaleString()}</div>
+                        <div style="font-size: 13px; color: #8b93b3; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Total Available Funds</div>
+                        <div style="color: #c084fc; font-size: 28px; font-weight: bold; margin-top: 8px;">₹${totalIncome.toLocaleString()}</div>
+                        ${carried > 0 ? `<div style="font-size: 12px; color: #4ade80; margin-top: 6px;">Includes ₹${carried.toLocaleString()} carried forward</div>` : ''}
                     </div>
                     
                     <div style="margin-top: 25px; display: flex; flex-direction: column; gap: 10px;">
@@ -918,8 +980,8 @@
                 <div style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative;">
                     <img src="${chartBase64}" style="width: 100%; max-width: 320px;">
                     <div style="position: absolute; text-align: center; pointer-events: none;">
-                        <div style="font-size: 14px; color: #94a3b8; margin-bottom: 4px;">Total Salary</div>
-                        <div style="font-size: 28px; font-weight: 800; color: white;">₹${data.salary.amount.toLocaleString()}</div>
+                        <div style="font-size: 14px; color: #94a3b8; margin-bottom: 4px;">Total Funds</div>
+                        <div style="font-size: 28px; font-weight: 800; color: white;">₹${totalIncome.toLocaleString()}</div>
                     </div>
                 </div>
             </div>
