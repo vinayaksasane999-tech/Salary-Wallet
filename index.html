@@ -134,26 +134,28 @@
         .section-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; }
         
         /* ============================
-           INPUT BOX MOBILE ALIGNMENT FIXES
+           INPUT BOX MOBILE HEIGHT & STRUCTURAL FIXES
            ============================ */
         .input { 
             width: 100% !important; 
             max-width: 100% !important;
-            padding: 12px 14px; 
+            padding: 12px 14px !important; 
             border-radius: 16px; 
             border: 1px solid var(--card-border); 
             background: var(--input-bg); 
             color: var(--text-main); 
             margin-bottom: 12px; 
-            font-size: 14px; 
+            font-size: 15px; /* Bumped slightly to prevent auto-zoom in mobile Safari */
             outline: none; 
             box-sizing: border-box !important;
             display: block;
-            min-height: 46px; /* Explicitly standardizes height architecture */
+            height: 48px !important;      /* Core variable: Forces desktop input block height */
+            min-height: 48px !important;  /* Secondary defense parameter */
+            line-height: 24px !important; /* Third defense layer: Standardizes the vertical inline footprint */
             transition: background 0.5s ease, border 0.5s ease;
         }
 
-        /* WebKit/Safari Date Picker Reset with custom premium SVG Calendar icon */
+        /* WebKit/Safari Date Picker Override Setup */
         input[type="date"] {
             -webkit-appearance: none;
             -moz-appearance: none;
@@ -163,16 +165,27 @@
             background-repeat: no-repeat;
             background-position: right 14px center;
             background-size: 18px;
-            padding-right: 40px !important;
+            padding-right: 42px !important;
+            /* Explicit inner line height configuration specifically blocks iOS Safari default compression bugs */
+            display: inline-flex !important;
+            align-items: center !important;
         }
 
-        /* Completely masks native browser graphic elements while preserving tap functionality */
+        /* Completely masks native browser visual tags while keeping native touch triggers responsive */
         input[type="date"]::-webkit-calendar-picker-indicator {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             width: 100%; height: 100%;
             opacity: 0;
             cursor: pointer;
+        }
+
+        /* Standardizes default layout padding blocks inside iOS specific WebKit code loops */
+        input[type="date"]::-webkit-date-edit {
+            padding: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            height: 100% !important;
         }
 
         .input-group {
@@ -203,6 +216,7 @@
             margin-bottom: 10px; 
             display: block;
             text-align: center;
+            height: 48px;
         }
         .button:hover { transform: translateY(-2px); }
         .green-btn { background: linear-gradient(135deg, #10b981, #059669); }
@@ -260,7 +274,7 @@
         .dash-nav-btn { background: transparent; border: none; color: #c084fc; font-size: 18px; cursor: pointer; padding: 0 8px; }
         .dash-title { font-size: 16px; font-weight: bold; color: var(--text-main); min-width: 120px; text-align: center; }
         .header-actions { display: flex; align-items: center; gap: 12px; width: 100%; justify-content: space-between; }
-        .header-actions .button { margin-bottom: 0; padding: 10px 14px; width: auto !important; }
+        .header-actions .button { margin-bottom: 0; padding: 10px 14px; width: auto !important; height: auto !important; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: all 0.3s ease; }
         .modal-overlay.show { opacity: 1; pointer-events: auto; }
