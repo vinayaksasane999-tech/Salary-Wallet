@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Premium Salary Tracker</title>
 
     <script>
@@ -133,6 +133,9 @@
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 10px; width: 100%; }
         .section-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; }
         
+        /* ============================
+           INPUT BOX MOBILE ALIGNMENT FIXES
+           ============================ */
         .input { 
             width: 100% !important; 
             max-width: 100% !important;
@@ -147,6 +150,12 @@
             box-sizing: border-box !important;
             display: block;
             transition: background 0.5s ease, border 0.5s ease;
+        }
+
+        /* WebKit/Safari Date Picker Reset to prevent overflow clipping */
+        input[type="date"] {
+            -webkit-appearance: none;
+            min-width: 0 !important;
         }
 
         .input-group {
@@ -188,6 +197,9 @@
         .amount { font-size: 18px; font-weight: 700; }
         .item-controls { display: flex; align-items: center; gap: 12px; margin-top: 14px; width: 100%; }
 
+        /* ============================
+           TOP LEFT CALENDAR BUTTON & NAVIGATION
+           ============================ */
         .top-left-calendar-btn {
             position: fixed; top: 16px; left: 16px;
             background: var(--card-bg); border: 1px solid var(--card-border);
@@ -267,7 +279,10 @@
             .top-section { grid-template-columns: 1fr; }
             .pie-card { flex-direction: column-reverse; justify-content: center; min-height: auto; gap: 24px; }
             .stats-list { width: 100%; padding-left: 10px; }
-            .input-group { flex-direction: column; gap: 0; }
+            
+            /* Structural fix: Forces grid rows to turn into single columns on mobile to isolate date input fields */
+            .input-group { flex-direction: column !important; gap: 0 !important; width: 100% !important; }
+            .input { width: 100% !important; margin-bottom: 12px !important; }
             .button { width: 100% !important; margin-top: 4px; }
             .bottom-grid { grid-template-columns: 1fr; }
         }
